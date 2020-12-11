@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+$if(keywords)$
+  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+$endif$
+  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+$for(header-includes)$
+  $header-includes$
+$endfor$
+$for(css)$
+  <link rel="stylesheet" href="$css$" />
+$endfor$
+</head>
+<body>
+$for(include-before)$
+$include-before$
+$endfor$
+
+<main class="page-content" aria-label="Content">
+  <div class="wrapper">
+$if(post)$
+<div class="home">
+  <ul class="post-list">
+$for(post)$
+    $if(post.draft)$
+    $else$
+    <li><span class="post-meta">$post.short_date$</span><a href="$post.link$">$post.title$</a></li>
+    $endif$
+$endfor$
+  </ul>
+</div>
+$endif$
+  </div>
+</main>
+
+$for(include-after)$
+$include-after$
+$endfor$
+</body>
+</html>

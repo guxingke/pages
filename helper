@@ -1,0 +1,208 @@
+#!/usr/bin/env bash
+
+# 构建 meta/objs.yml ， 归档页等依赖
+function build_objs_meta() {
+  SRC="$*"
+  rm -rf meta/*-layout.yml
+  for meta in $SRC; do
+    LAYOUT=$(yq .layout <"$meta" | sed 's/\"//g')
+    LAYOUT_RAW="meta/${LAYOUT}-layout.yml"
+    if [ ! -f "$LAYOUT_RAW" ]; then
+      echo "$LAYOUT:" >"$LAYOUT_RAW"
+    fi
+    sed 's/^/  /g' <"$meta" | sed '1s/^  /- /g' >>"$LAYOUT_RAW"
+  done
+
+  OUTPUT=meta/objs.yml
+  rm -f $OUTPUT && touch $OUTPUT
+
+  layouts=$(ls meta/*-layout.yml)
+  for file in $layouts; do
+    LAYOUT=$(echo "$file" | awk -F '[-/]' '{print $2}')
+    echo "$LAYOUT:" >>$OUTPUT
+    yq ".${LAYOUT}[]" <"$file" | jq -s -c 'sort_by(.modify_date, .date) | reverse' | yq -y . >>$OUTPUT
+  done
+  rm -rf meta/*-layout.yml
+}
+
+# 提取元信息
+function build_meta() {
+  SRC=$1
+  OUTPUT=$2
+  NAME=$3
+
+  # 临时文件
+  OTT="${OUTPUT}.tmp"
+
+  # 创建目录
+  OUTPUT_DIR=$(dirname "$OUTPUT")
+  [[ ! -d "$OUTPUT_DIR" ]] && mkdir -p "$OUTPUT_DIR"
+
+  # 提取 meta
+  grep -n -E "^----*$" <"$SRC" | head -n 2 | awk -F ":" '{print $1}' | xargs | awk '{print $1+1 "," $2-1}' | xargs -I {} sed -n '{}p' "$SRC" >$OTT
+
+  META_YML=$(cat ${OTT})
+
+  # 默认非草稿
+  DRAFT=$(echo "$META_YML" | yq '.draft')
+  if [[ "true" != "$DRAFT" ]]; then
+    DRAFT="false"
+  fi
+  yq -i -y ".draft|=$DRAFT" $OTT
+
+  # 默认开启评论
+  COMMENT=$(echo "$META_YML" | yq '.comment')
+  if [[ "false" != "$COMMENT" ]]; then
+    COMMENT="true"
+  fi
+  yq -i -y ".comment|=$COMMENT" $OTT
+
+  # 默认开启 TOC
+  TOC=$(echo "$META_YML" | yq '.comment')
+  if [[ "false" != "$COMMENT" ]]; then
+    TOC="true"
+  fi
+  yq -i -y ".toc|=$TOC" $OTT
+
+  # 默认 LAYOUT 为当前文件所在目录名
+  LAYOUT=$(echo "$META_YML" | yq '.layout' | sed 's/\"//g')
+  if [ "$LAYOUT" == "null" ]; then
+    LAYOUT=$(echo "$NAME" | awk -F '/' '{print $1}')
+  fi
+  yq -i -y ".layout|=\"$LAYOUT\"" $OTT
+
+  # 链接 类似 /post/test.html
+  LINK="/$NAME.html"
+  yq -i -y ".link|=\"$LINK\"" $OTT
+
+  # TITLE 默认值文件名
+  TITLE=$(echo "$META_YML" | yq '.title')
+  if [[ "null" == "$TITLE" ]]; then
+    yq -i -y ".title|=\"$NAME\"" $OTT
+  fi
+
+  # 创建时间，默认  2020-01-01 00:00:00
+  C_AT=$(echo "$META_YML" | yq '.date' | sed 's/\"//g' | sed 's/T/ /g')
+  if [[ -z "$C_AT" ]] || [[ "null" == "$C_AT" ]]; then
+    C_AT="2020-01-01 00:00:00"
+  fi
+  C_SHORT_AT=${C_AT:0:10}
+  yq -i -y ".date|=\"$C_AT\"" $OTT
+  yq -i -y ".short_date|=\"$C_SHORT_AT\"" $OTT
+
+  # 修改时间，默认 git 的提交时间 -> 创建时间
+  M_AT=$(echo "$META_YML" | yq '.modify_date' | sed 's/\"//g' | sed 's/T/ /g')
+  if [[ -z "$M_AT" ]] || [[ "null" == "$M_AT" ]]; then
+    if [[ -d ".git" ]]; then
+      M_AT=$(git log -1 --format="%ci" -- "$SRC" | awk '{print $1,$2}')
+    fi
+  fi
+  if [[ -z "$M_AT" ]] || [[ "" == "$M_AT" ]]; then
+    M_AT=$C_AT
+  fi
+  M_SHORT_AT=${M_AT:0:10}
+  yq -i -y ".modify_date|=\"$M_AT\"" $OTT
+  yq -i -y ".modify_short_date|=\"$M_SHORT_AT\"" $OTT
+
+  mv $OTT $OUTPUT
+}
+
+# 构建 html
+function build_obj() {
+  HIGHLIGHT=$1
+  THEME=$2
+  DIST_DIR=$3
+  SRC=$4
+  OUTPUT=$5
+  SRC_NAME=$6
+
+  # 输出目录
+  OUTPUT_DIR=$(dirname "$OUTPUT")
+  [[ ! -d "$OUTPUT_DIR" ]] && mkdir -p "$OUTPUT_DIR"
+
+  META_FILE="meta/$SRC_NAME.yml"
+  DRAFT=$(cat $META_FILE | yq .draft)
+  if [[ $DRAFT != "true" ]]; then
+    ARGS=" --highlight-style=${HIGHLIGHT} --from markdown --metadata-file basic.yml --metadata-file meta/${SRC_NAME}.yml -H ${DIST_DIR}/header.html -B ${DIST_DIR}/before.html -A ${DIST_DIR}/after.html -s"
+    # toc, 默认为 true
+    TOC=$(cat $META_FILE | yq .toc)
+    if [ $TOC != "false" ]; then
+      ARGS="$ARGS --toc"
+    fi
+
+    # layout
+    LAYOUT=$(cat $META_FILE | yq .layout | sed 's/\"//g')
+    if [ $LAYOUT == "null" ]; then
+      LAYOUT=$(echo $SRC_NAME | awk -F '/' '{print $1}')
+    fi
+    ARGS="$ARGS --template=templates/${THEME}/${LAYOUT}.template"
+
+    if [[ $LAYOUT == *"index" ]]; then
+      ARGS="$ARGS --metadata-file meta/objs.yml"
+    fi
+
+    pandoc $ARGS $SRC | sed 's/^  //g' >$OUTPUT
+  else
+    echo "" >$OUTPUT
+  fi
+}
+
+function usage() {
+  echo "Usage: ${0##*/} {build_objs_meta|new|build_meta|build_obj|serve|watch|help} "
+  exit 0
+}
+
+# ./helper new post test post -> 在 src/post/ 目录下创建 test-post.md 文件，并写入基本 metadata 。
+function new() {
+  layout=$1
+  shift
+  NAME=$(echo "$*" | sed 's/ /-/g')
+  FILENAME=src/$layout/${NAME}.md
+  touch "$FILENAME"
+  echo '---' >"$FILENAME"
+  echo "title: $*" >>"$FILENAME"
+  C_AT=$(date '+%Y-%m-%d %H:%M:%S')
+  echo "date: $C_AT" >>"$FILENAME"
+  echo "draft: true" >>"$FILENAME"
+  echo '---' >>"$FILENAME"
+
+  echo "$*" >>"$FILENAME"
+}
+
+function watch_action() {
+  echo "build ..."
+  make all
+  chrome-cli reload
+  echo "build done"
+}
+
+function main() {
+
+  [ $# -gt 0 ] || usage
+
+  ACTION=$1
+  shift
+
+  case "$ACTION" in
+  build_objs_meta)
+    build_objs_meta "$@"
+    ;;
+  new)
+    new "$@"
+    ;;
+  build_obj)
+    build_obj "$@"
+    ;;
+  build_meta)
+    build_meta "$@"
+    ;;
+  watch)
+    watch_action
+    ;;
+  *)
+    usage
+    ;;
+  esac
+}
+
+main "$@"

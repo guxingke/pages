@@ -1,0 +1,12 @@
+site:
+  base: https://www.guxingke.com/pages/ # change it
+  name: Pages                           # change it
+  desc: all in one static site          # change it
+
+social:
+  github: guxingke                      # change it
+  twitter: guxingke                     # change it
+
+# 接入时改掉 shortname , 反注释即可
+#disqus:
+#  shortname: guxingke

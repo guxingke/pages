@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+$for(author-meta)$
+  <meta name="author" content="$author-meta$" />
+$endfor$
+$if(date-meta)$
+  <meta name="dcterms.date" content="$date-meta$" />
+$endif$
+$if(keywords)$
+  <meta name="keywords" content="$for(keywords)$$keywords$$sep$, $endfor$" />
+$endif$
+  <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
+  <style>
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+$if(quotes)$
+      q { quotes: "“" "”" "‘" "’"; }
+$endif$
+  </style>
+$if(highlighting-css)$
+  <style>
+$highlighting-css$
+  </style>
+$endif$
+$for(css)$
+  <link rel="stylesheet" href="$css$" />
+$endfor$
+$if(math)$
+  $math$
+$endif$
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+$for(header-includes)$
+  $header-includes$
+$endfor$
+</head>
+<body>
+$for(include-before)$
+$include-before$
+$endfor$
+
+<main class="page-content" aria-label="Content">
+<div class="wrapper">
+<div class="post">
+  <h3 class="post-title">$title$</h3>
+  <div class="post-date"><span>最后修改时间<span> $modify_short_date$</div>
+  <div class="post-meta">
+$if(toc)$
+<nav id="$idprefix$TOC" role="doc-toc">
+$table-of-contents$
+</nav>
+$endif$
+  </div>
+  <div class="post-content">
+  $body$
+  </div>
+</div>
+</div>
+</main>
+
+$if(disqus)$
+$if(comment)$
+<div class="wrapper">
+<div id="disqus_thread"></div>
+<script>
+
+/**
+*  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+*  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+var disqus_config = function () {
+this.page.url = "$site.base$/$link$";  // Replace PAGE_URL with your page's canonical URL variable
+this.page.identifier = "$name$"; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+};
+(function() { // DON'T EDIT BELOW THIS LINE
+var d = document, s = d.createElement('script');
+s.src = 'https://$disqus.shortname$.disqus.com/embed.js';
+s.setAttribute('data-timestamp', +new Date());
+(d.head || d.body).appendChild(s);
+})();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+$endif$
+$endif$
+
+
+
+$for(include-after)$
+$include-after$
+$endfor$
+</body>
+</html>

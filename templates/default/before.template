@@ -1,0 +1,13 @@
+<header class="site-header" role="banner">
+  <div class="wrapper">
+    <a class="site-title" href="/">$site.name$</a>
+
+    <nav><ul class="nav-list clearfix">
+      <li class="nav-item"><a href="/" alt="首页" title="首页">首页</a></li>
+      <li class="nav-item"><a href="/wiki/index.html" alt="Wiki" title="Wiki">Wiki</a></li>
+      <li class="nav-item"><a href="/page/about.html" alt="关于" title="关于">关于</a></li>
+    </ul></nav>
+
+    <span class="site-desc">$site.desc$</span>
+  </div>
+</header>
