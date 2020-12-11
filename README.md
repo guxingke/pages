@@ -73,6 +73,10 @@ make -j 12
 
 watch 增量实时构建，并刷新当前 Chrome 的活动 Tab，基于 fswatch 在写入 3 秒后进行构建, 构建完成后通过 `chrome-cli` 刷新活动 tab （配合 make serve 使用）
 
+```bash
+make watch
+```
+
 ## 切换主题
 
 自带三主题，默认为 default。
