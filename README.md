@@ -89,7 +89,7 @@ make THEME=basic -j 12
 
 ## 集成 disqus 评论
 
-只需反注释 `basic.yml` 文件中的 disqus 部分，配置 shortname 后重新构建即可。
+只需反注释 [basic.yml](basic.yml) 文件中的 disqus 部分，配置 shortname 后重新构建即可。
 
 # 更多功能
 
