@@ -5,6 +5,8 @@
 - 项目站点 [Pages](https://www.guxingke.com/pages/)。
 - 实例站点 [Guxingke](https://www.guxingke.com)。
 
+核心逻辑在 [makefile](makefile) 和 [helper](helper) 文件内，不超过 200 行。
+
 # 功能
 
 - 博客
@@ -15,7 +17,7 @@
 
 # 快速开始(macos 用户)
 
-### 安装依赖
+## 安装依赖
 
 ```bash
 # jq 工具，处理 json
@@ -32,7 +34,7 @@ brew install gnu-sed
 brew install pandoc
 ```
 
-### 项目初始化
+## 项目初始化
 
 - Clone 或者下载当前项目的源码
 
@@ -55,10 +57,53 @@ make serve
 make clean && make
 ```
 
+# 进阶功能
+
+## 并行构建
+
+项目基于 make 和 Makefile，并对并行构建进行了支持。
+
+```bash
+make -j 12 
+```
+
+解决全量构建时的速度问题
+
+## 增量实时构建
+
+watch 增量实时构建，并刷新当前 Chrome 的活动 Tab，基于 fswatch 在写入 3 秒后进行构建, 构建完成后通过 `chrome-cli` 刷新活动 tab （配合 make serve 使用）
+
+## 切换主题
+
+自带三主题，默认为 default。
+
+```bash
+make THEME=basic -j 12
+```
+
+使用主题 basic 进行构建。
+
+## 集成 disqus 评论
+
+只需反注释 `basic.yml` 文件中的 disqus 部分，配置 shortname 后重新构建即可。
+
 # 更多功能
 
 - [ ] rss 支持
 - [ ] 搜索支持
+
+
+# 实现原理
+
+## pandoc 转换工具
+
+- pandoc 支持模板
+- pandoc 支持读取 yaml 文件作为元信息
+- pandoc 支持 include 文件
+
+## make 构建
+
+make 默认增量构建
 
 
 # CHANGELOG
