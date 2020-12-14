@@ -2,7 +2,7 @@
 
 超轻量级的静态内容生成工具, 通过组合一些命令行工具构建而成。
 
-- 项目站点 [Pages](https://www.guxingke.com/pages) 。
+- 项目站点 [Pages](https://pages.guxingke.com) 。
 - 实例站点 [Guxingke](https://www.guxingke.com) 。
 
 核心逻辑在 [makefile](makefile) 和 [helper](helper) 文件内，不超过 200 行。
