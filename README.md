@@ -2,8 +2,8 @@
 
 超轻量级的静态内容生成工具, 通过组合一些命令行工具构建而成。
 
-- 项目站点 [Pages](https://www.guxingke.com/pages/)。
-- 实例站点 [Guxingke](https://www.guxingke.com)。
+- 项目站点 [Pages](https://www.guxingke.com/pages) 。
+- 实例站点 [Guxingke](https://www.guxingke.com) 。
 
 核心逻辑在 [makefile](makefile) 和 [helper](helper) 文件内，不超过 200 行。
 
@@ -91,10 +91,17 @@ make THEME=basic -j 12
 
 只需反注释 [basic.yml](basic.yml) 文件中的 disqus 部分，配置 shortname 后重新构建即可。
 
+## 部署新站点
+
+1. 修改 `static/CNAME` 文件内容，指向新的域名，或者移除该文件。
+2. 重新构建，或者移除 `docs/CNAME` 文件。
+3. 推送到新的仓库，并开启 `Pages` 服务。
+
 # 更多功能
 
 - [ ] rss 支持
 - [ ] 搜索支持
+- [ ] 标签支持
 
 
 # 实现原理
@@ -109,7 +116,6 @@ make THEME=basic -j 12
 
 make 默认增量构建
 
-
-# CHANGELOG
+# 变更日志
 
 - 基本可用
